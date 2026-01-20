@@ -1,0 +1,117 @@
+name: X-Master-Bot
+
+on:
+  schedule:
+    # اجرا هر 30 دقیقه، ساعات فعال ایران (6:30 تا 18:30 UTC)
+    - cron: '0,30 6-18 * * *'
+  workflow_dispatch:
+    inputs:
+      test_mode:
+        description: 'اجرا در حالت تست (کمتر بازدید)'
+        required: false
+        default: 'false'
+        type: boolean
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+    # ========================================
+    # مرحله 1: دریافت کدها
+    # ========================================
+    - name: 📥 دریافت کدها
+      uses: actions/checkout@v4
+
+    # ========================================
+    # مرحله 2: نصب و راه‌اندازی Tor
+    # ========================================
+    - name: 🧅 نصب و راه‌اندازی Tor
+      run: |
+        echo ">>> نصب Tor..."
+        sudo apt-get update
+        sudo apt-get install -y tor curl
+        
+        echo ">>> شروع سرویس Tor..."
+        sudo service tor start
+        
+        echo ">>> صبر برای اتصال (15 ثانیه)..."
+        sleep 15
+        
+        echo ">>> تست اتصال Tor..."
+        for i in 1 2 3; do
+          if curl --socks5-hostname 127.0.0.1:9050 --max-time 30 https://check.torproject.org/api/ip 2>/dev/null; then
+            echo ""
+            echo "✅ اتصال Tor برقرار است!"
+            exit 0
+          fi
+          echo "⏳ تلاش مجدد $i/3..."
+          sleep 5
+        done
+        
+        echo "❌ اتصال Tor برقرار نشد!"
+        exit 1
+
+    # ========================================
+    # مرحله 3: نصب پایتون
+    # ========================================
+    - name: 🐍 نصب پایتون
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+        cache: 'pip'
+
+    # ========================================
+    # مرحله 4: نصب کتابخانه‌ها
+    # ========================================
+    - name: 📦 نصب کتابخانه‌ها
+      run: |
+        pip install --upgrade pip
+        pip install -r requirements.txt
+        playwright install chromium
+        playwright install-deps
+
+    # ========================================
+    # مرحله 5: اجرای ربات
+    # ========================================
+    - name: 🚀 اجرای ربات هوشمند
+      timeout-minutes: 18
+      env:
+        X_TARGET_URL: ${{ secrets.X_TARGET_URL }}
+        X_COOKIE_JSON: ${{ secrets.X_COOKIE_JSON }}
+        X_USERNAME: ${{ secrets.X_USERNAME }}
+      run: |
+        if [ "${{ github.event.inputs.test_mode }}" == "true" ]; then
+          python main.py --test-mode
+        else
+          python main.py
+        fi
+
+    # ========================================
+    # مرحله 6: ذخیره گزارش
+    # ========================================
+    - name: 📊 ذخیره گزارش روزانه
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: report-${{ github.run_number }}-${{ github.run_attempt }}
+        path: report.txt
+        retention-days: 14
+        if-no-files-found: ignore
+
+    # ========================================
+    # مرحله 7: خلاصه اجرا
+    # ========================================
+    - name: 📈 نمایش خلاصه
+      if: always()
+      run: |
+        echo "========================================"
+        echo "📊 خلاصه اجرای X Master Bot"
+        echo "========================================"
+        if [ -f report.txt ]; then
+          tail -5 report.txt
+        else
+          echo "گزارشی یافت نشد"
+        fi
+        echo "========================================"

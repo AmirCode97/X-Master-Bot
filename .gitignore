@@ -1,0 +1,31 @@
+# کوکی‌ها و اطلاعات حساس
+x_cookies.json
+x_cookies_compact.txt
+state.json
+*.cookie
+*.cookies
+
+# گزارش‌ها
+report.txt
+*.log
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+ENV/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# سیستم‌عامل
+.DS_Store
+Thumbs.db
+desktop.ini

@@ -1,0 +1,19 @@
+# ==========================================
+# X Master Bot - Dependencies
+# ==========================================
+# نسخه‌ها قفل شده برای ثبات و امنیت
+
+# Browser Automation
+playwright==1.40.0
+
+# Environment Variables (optional, for local development)
+python-dotenv==1.0.0
+
+# Retry Logic (for future enhancements)
+tenacity==8.2.3
+
+# ==========================================
+# IMPORTANT: After pip install, run:
+# playwright install chromium
+# playwright install-deps
+# ==========================================

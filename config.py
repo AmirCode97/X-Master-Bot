@@ -109,13 +109,14 @@ LOCALES: List[str] = [
 class TorConfig:
     """تنظیمات پروکسی Tor"""
     
+    use_tor: bool = False  # برای اجرای لوکال بدون Tor
     host: str = "127.0.0.1"
     port: int = 9050
     control_port: int = 9051
     
     @property
     def proxy_url(self) -> str:
-        return f"socks5://{self.host}:{self.port}"
+        return f"socks5://{self.host}:{self.port}" if self.use_tor else None
 
 
 # ============================================

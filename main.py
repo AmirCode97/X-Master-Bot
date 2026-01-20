@@ -17,6 +17,13 @@ from typing import Optional, Dict, Any, List
 
 from playwright.sync_api import sync_playwright, Page, BrowserContext, Browser
 
+# Load .env file if exists (for local execution)
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass  # dotenv not installed, using system env vars
+
 from config import Config, RateLimits
 from stealth import apply_stealth
 
@@ -281,21 +288,22 @@ class XBot:
         except Exception as e:
             logger.debug(f"Like skipped: {e}")
         
-        # ریپست (ریتوییت)
-        try:
-            repost_btn = page.query_selector('button[data-testid="retweet"]')
-            if repost_btn:
-                repost_btn.click()
-                self._human_delay(0.5, 1.5)
-                
-                confirm_btn = page.query_selector('div[data-testid="retweetConfirm"]')
-                if confirm_btn:
-                    confirm_btn.click()
-                    self.stats["reposts"] += 1
-                    logger.info("🔁 پست ریپست شد")
-                    self._human_delay()
-        except Exception as e:
-            logger.debug(f"Repost skipped: {e}")
+        # ریپست (ریتوییت) - غیرفعال شده
+        # کاربر نمی‌خواهد پست خودش را ریتوییت کند
+        # try:
+        #     repost_btn = page.query_selector('button[data-testid="retweet"]')
+        #     if repost_btn:
+        #         repost_btn.click()
+        #         self._human_delay(0.5, 1.5)
+        #         
+        #         confirm_btn = page.query_selector('div[data-testid="retweetConfirm"]')
+        #         if confirm_btn:
+        #             confirm_btn.click()
+        #             self.stats["reposts"] += 1
+        #             logger.info("🔁 پست ریپست شد")
+        #             self._human_delay()
+        # except Exception as e:
+        #     logger.debug(f"Repost skipped: {e}")
         
         # فالو
         self._smart_follow(page)
@@ -442,22 +450,27 @@ class XBot:
             logger.info(f"\n{'='*20} دور {i+1}/{total_views} {'='*20}")
             logger.info(f"🎯 هدف: {current_target}")
             
-            # تغییر IP (به جز دور اول)
-            if i > 0:
+            # تغییر IP (به جز دور اول) - فقط اگر Tor فعال باشد
+            if i > 0 and self.config.tor.use_tor:
                 self._renew_tor_ip()
             
             try:
                 with sync_playwright() as p:
-                    # اتصال با Tor proxy
-                    browser = p.chromium.launch(
-                        headless=self.config.headless,
-                        proxy={"server": self.config.tor.proxy_url},
-                        args=[
+                    # تنظیمات launch
+                    launch_opts = {
+                        "headless": self.config.headless,
+                        "args": [
                             "--disable-blink-features=AutomationControlled",
                             "--disable-dev-shm-usage",
                             "--no-sandbox",
                         ]
-                    )
+                    }
+                    
+                    # اضافه کردن proxy فقط اگر Tor فعال باشد
+                    if self.config.tor.proxy_url:
+                        launch_opts["proxy"] = {"server": self.config.tor.proxy_url}
+                    
+                    browser = p.chromium.launch(**launch_opts)
                     
                     # فقط در دور اول از کوکی استفاده کن (برای همه URLها یکبار ادمین)
                     is_admin = (i < len(self.target_urls) and bool(self.cookie_json))

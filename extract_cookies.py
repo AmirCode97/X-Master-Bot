@@ -12,7 +12,7 @@ def extract_cookies():
     مرورگر را باز می‌کند تا لاگین کنید، سپس کوکی‌ها را ذخیره می‌کند
     """
     print("=" * 50)
-    print("🍪 X.com Cookie Extractor")
+    print("[COOKIE] X.com Cookie Extractor")
     print("=" * 50)
     
     with sync_playwright() as p:
@@ -24,18 +24,18 @@ def extract_cookies():
         page = context.new_page()
         
         # رفتن به صفحه لاگین
-        print("\n📱 در حال باز کردن X.com...")
+        print("\n[INFO] Opening X.com...")
         page.goto("https://x.com/login")
         
         print("\n" + "=" * 50)
-        print("👆 لطفاً در مرورگر وارد حساب خود شوید")
-        print("   پس از لاگین موفق، اینجا Enter بزنید...")
+        print("[ACTION] Please login to your X account in the browser")
+        print("         After successful login, press Enter here...")
         print("=" * 50)
         
-        input("\n>>> Enter را بزنید: ")
+        input("\n>>> Press Enter when done: ")
         
         # استخراج کوکی‌ها
-        print("\n🔄 در حال استخراج کوکی‌ها...")
+        print("\n[INFO] Extracting cookies...")
         
         # دریافت storage state کامل
         storage = context.storage_state()
@@ -45,31 +45,34 @@ def extract_cookies():
         with open(output_file, "w", encoding="utf-8") as f:
             json.dump(storage, f, indent=2)
         
-        print(f"\n✅ کوکی‌ها ذخیره شدند: {output_file}")
+        print(f"\n[SUCCESS] Cookies saved to: {output_file}")
         
         # نمایش برای کپی در GitHub Secrets
         print("\n" + "=" * 50)
-        print("📋 این متن را در GitHub Secret کپی کنید:")
-        print("   (X_COOKIE_JSON)")
+        print("[COPY] Copy this text to GitHub Secret (X_COOKIE_JSON):")
         print("=" * 50)
         
         # فشرده‌سازی برای Secret
         compact_json = json.dumps(storage, separators=(',', ':'))
-        print(f"\n{compact_json}")
         
-        # همچنین ذخیره نسخه فشرده
+        # ذخیره نسخه فشرده
         with open("x_cookies_compact.txt", "w", encoding="utf-8") as f:
             f.write(compact_json)
         
-        print(f"\n💾 همچنین در فایل ذخیره شد: x_cookies_compact.txt")
+        print(f"\n[SAVED] Compact version saved to: x_cookies_compact.txt")
+        
+        # نمایش خلاصه کوکی‌ها
+        cookie_count = len(storage.get("cookies", []))
+        print(f"[INFO] Total cookies extracted: {cookie_count}")
         
         browser.close()
         
         print("\n" + "=" * 50)
-        print("🎉 تمام! حالا این مقدار را در GitHub Secrets اضافه کنید:")
-        print("   Settings → Secrets → Actions → New repository secret")
-        print("   Name: X_COOKIE_JSON")
-        print("   Value: محتوای x_cookies_compact.txt")
+        print("[DONE] Now add this to GitHub Secrets:")
+        print("  1. Go to your repo Settings > Secrets > Actions")
+        print("  2. Click 'New repository secret'")
+        print("  3. Name: X_COOKIE_JSON")
+        print("  4. Value: Copy content from x_cookies_compact.txt")
         print("=" * 50)
 
 

@@ -254,6 +254,20 @@ class XBot:
             page.goto(target_url, timeout=90000, wait_until="domcontentloaded")
             self._human_delay(3, 6)
             
+            # گرفتن اسکرین‌شات برای debug
+            try:
+                screenshot_name = f"debug_screenshot_{self.stats['views'] + 1}.png"
+                page.screenshot(path=screenshot_name)
+                logger.info(f"📸 اسکرین‌شات ذخیره شد: {screenshot_name}")
+                
+                # لاگ کردن URL فعلی و عنوان صفحه
+                current_url = page.url
+                page_title = page.title()
+                logger.info(f"📍 URL فعلی: {current_url}")
+                logger.info(f"📄 عنوان صفحه: {page_title}")
+            except Exception as e:
+                logger.warning(f"⚠️ خطا در گرفتن اسکرین‌شات: {e}")
+            
             # اسکرول طبیعی
             self._natural_scroll(page, random.randint(2, 4))
             
@@ -280,13 +294,22 @@ class XBot:
         # لایک
         try:
             like_btn = page.query_selector('button[data-testid="like"]')
+            logger.info(f"🔍 جستجوی دکمه لایک: {'پیدا شد ✅' if like_btn else 'پیدا نشد ❌'}")
+            
             if like_btn:
                 like_btn.click()
                 self.stats["likes"] += 1
                 logger.info("❤️ پست لایک شد")
                 self._human_delay()
+            else:
+                # شاید قبلاً لایک شده - بررسی unlike
+                unlike_btn = page.query_selector('button[data-testid="unlike"]')
+                if unlike_btn:
+                    logger.info("💔 پست قبلاً لایک شده بود")
+                else:
+                    logger.warning("⚠️ نه دکمه like و نه unlike پیدا نشد!")
         except Exception as e:
-            logger.debug(f"Like skipped: {e}")
+            logger.warning(f"⚠️ خطا در لایک: {e}")
         
         # ریپست (ریتوییت) - غیرفعال شده
         # کاربر نمی‌خواهد پست خودش را ریتوییت کند

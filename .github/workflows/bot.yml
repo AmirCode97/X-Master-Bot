@@ -69,8 +69,8 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install -r requirements.txt
-          playwright install chromium
-          sudo playwright install-deps chromium
+          python -m playwright install chromium
+          sudo $(which python) -m playwright install-deps chromium
 
       # ========================================
       # مرحله 5: اجرای ربات

@@ -30,3 +30,10 @@ ENV/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# فایل‌های لوکال ویندوز
+run_bot.bat
+run_silent.vbs
+setup_scheduler.bat
+stop_scheduler.bat
+extract_cookies.py

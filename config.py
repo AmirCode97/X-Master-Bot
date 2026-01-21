@@ -109,7 +109,8 @@ LOCALES: List[str] = [
 class TorConfig:
     """تنظیمات پروکسی Tor"""
     
-    use_tor: bool = False  # برای اجرای لوکال بدون Tor
+    # Tor فقط در Linux (GitHub Actions) فعال می‌شود
+    use_tor: bool = field(default_factory=lambda: __import__('platform').system() == 'Linux')
     host: str = "127.0.0.1"
     port: int = 9050
     control_port: int = 9051

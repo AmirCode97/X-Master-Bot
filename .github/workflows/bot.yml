@@ -1,9 +1,9 @@
 name: X-Master-Bot
 
 on:
-  schedule:
-    # اجرا هر 30 دقیقه، ساعات فعال ایران (6:30 تا 18:30 UTC)
-    - cron: "0,30 6-18 * * *"
+  # schedule غیرفعال شد - خطر بلاک شدن حساب
+  # schedule:
+  #   - cron: "0,30 6-18 * * *"
   workflow_dispatch:
     inputs:
       test_mode:

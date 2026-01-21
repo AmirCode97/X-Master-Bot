@@ -1,4 +1,5 @@
 # کوکی‌ها و اطلاعات حساس
+.env
 x_cookies.json
 x_cookies_compact.txt
 state.json

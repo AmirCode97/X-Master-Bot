@@ -254,6 +254,17 @@ class XBot:
             page.goto(target_url, timeout=90000, wait_until="domcontentloaded")
             self._human_delay(3, 6)
             
+            # بررسی و Retry اگر خطا داد
+            for retry_attempt in range(3):
+                # چک کردن خطای "Something went wrong"
+                retry_btn = page.query_selector('button:has-text("Retry")')
+                if retry_btn:
+                    logger.warning(f"⚠️ خطای X - تلاش مجدد {retry_attempt + 1}/3...")
+                    retry_btn.click()
+                    self._human_delay(3, 5)
+                else:
+                    break
+            
             # گرفتن اسکرین‌شات برای debug
             try:
                 screenshot_name = f"debug_screenshot_{self.stats['views'] + 1}.png"
@@ -265,6 +276,15 @@ class XBot:
                 page_title = page.title()
                 logger.info(f"📍 URL فعلی: {current_url}")
                 logger.info(f"📄 عنوان صفحه: {page_title}")
+                
+                # چک کردن آیا صفحه واقعاً لود شده
+                page_content = page.content()
+                if "Something went wrong" in page_content:
+                    logger.warning("⚠️ صفحه هنوز خطا دارد")
+                elif "Log in" in page_title or "login" in current_url.lower():
+                    logger.warning("⚠️ صفحه لاگین نشان داده شد - کوکی کار نکرد")
+                else:
+                    logger.info("✅ صفحه با موفقیت لود شد")
             except Exception as e:
                 logger.warning(f"⚠️ خطا در گرفتن اسکرین‌شات: {e}")
             

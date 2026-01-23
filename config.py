@@ -16,18 +16,18 @@ from typing import List, Dict
 class RateLimits:
     """محدودیت‌های امن برای جلوگیری از شناسایی"""
     
-    views_per_run: int = 7            # تعداد بازدید در هر اجرا (کاهش از ۱۲ به ۷)
-    min_follow_per_run: int = 2      # حداقل فالو
-    max_follow_per_run: int = 4      # حداکثر فالو (تصادفی بین 2-4)
-    min_unfollow_per_run: int = 2    # حداقل آنفالو
-    max_unfollow_per_run: int = 4    # حداکثر آنفالو
+    views_per_run: int = 7            # تعداد بازدید در هر اجرا
+    min_follow_per_run: int = 0      # فالو غیرفعال - فقط بازدید و لایک
+    max_follow_per_run: int = 0      # فالو غیرفعال
+    min_unfollow_per_run: int = 0    # آنفالو غیرفعال
+    max_unfollow_per_run: int = 0    # آنفالو غیرفعال
     
-    # تاخیرهای انسانی (ثانیه)
-    min_action_delay: float = 2.0
-    max_action_delay: float = 6.0
-    min_scroll_delay: float = 0.8
-    max_scroll_delay: float = 2.5
-    page_load_wait: float = 5.0
+    # تاخیرهای انسانی (ثانیه) - افزایش برای رفتار طبیعی‌تر
+    min_action_delay: float = 3.0
+    max_action_delay: float = 8.0
+    min_scroll_delay: float = 1.0
+    max_scroll_delay: float = 3.0
+    page_load_wait: float = 8.0
     
     # Tor
     tor_reload_wait: int = 10
@@ -131,13 +131,25 @@ class Config:
     rate_limits: RateLimits = field(default_factory=RateLimits)
     tor: TorConfig = field(default_factory=TorConfig)
     
-    # حالت‌های اجرا
-    headless: bool = True
-    debug_mode: bool = False
-    test_mode: bool = False
+    # تنظیمات پروکسی
+    custom_proxy: str = ""           # پروکسی سفارشی (مثل http://user:pass@ip:port)
     
     # فایل‌ها
     report_file: str = "report.txt"
+    
+    @property
+    def proxy(self) -> dict:
+        """برگرداندن تنظیمات پروکسی برای Playwright"""
+        import os
+        proxy_str = os.getenv("X_PROXY", self.custom_proxy)
+        
+        if proxy_str:
+            return {"server": proxy_str}
+        
+        if self.tor.use_tor:
+            return {"server": self.tor.proxy_url}
+            
+        return None
     
     @staticmethod
     def parse_target_urls(urls_string: str) -> List[str]:

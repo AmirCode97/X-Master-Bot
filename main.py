@@ -509,9 +509,9 @@ class XBot:
                         ]
                     }
                     
-                    # اضافه کردن proxy فقط اگر Tor فعال باشد
-                    if self.config.tor.proxy_url:
-                        launch_opts["proxy"] = {"server": self.config.tor.proxy_url}
+                    # تنظیمات پروکسی
+                    if self.config.proxy:
+                        launch_opts["proxy"] = self.config.proxy
                     
                     browser = p.chromium.launch(**launch_opts)
                     

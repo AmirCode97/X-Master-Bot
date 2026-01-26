@@ -131,8 +131,10 @@ class Config:
     rate_limits: RateLimits = field(default_factory=RateLimits)
     tor: TorConfig = field(default_factory=TorConfig)
     
-    # تنظیمات پروکسی
-    custom_proxy: str = ""           # پروکسی سفارشی (مثل http://user:pass@ip:port)
+    # حالت مرورگر (Headless یعنی بدون پنجره برای سرور)
+    headless: bool = True
+    test_mode: bool = False
+    custom_proxy: str = ""           # پروکسی سفارشی
     
     # فایل‌ها
     report_file: str = "report.txt"

@@ -483,7 +483,11 @@ class XBot:
         for idx, url in enumerate(self.target_urls, 1):
             logger.info(f"   {idx}. {url}")
         
-        total_views = self.rate_limits.views_per_run
+        # هر URL به تعداد views_per_url بازدید می‌گیرد
+        views_per_url = self.rate_limits.views_per_url
+        total_views = views_per_url * len(self.target_urls)
+        
+        logger.info(f"📊 هر URL: {views_per_url} بازدید | کل: {total_views} بازدید")
         
         for i in range(total_views):
             # انتخاب URL به صورت چرخشی

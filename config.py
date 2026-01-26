@@ -16,7 +16,7 @@ from typing import List, Dict
 class RateLimits:
     """محدودیت‌های امن برای جلوگیری از شناسایی"""
     
-    views_per_run: int = 7            # تعداد بازدید در هر اجرا
+    views_per_url: int = 7            # تعداد بازدید برای هر URL (نه کل)
     min_follow_per_run: int = 3      # حداقل فالو در هر اجرا
     max_follow_per_run: int = 7      # حداکثر فالو در هر اجرا
     min_unfollow_per_run: int = 2    # حداقل آنفالو در هر اجرا

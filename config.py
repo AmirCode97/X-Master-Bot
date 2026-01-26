@@ -17,10 +17,10 @@ class RateLimits:
     """محدودیت‌های امن برای جلوگیری از شناسایی"""
     
     views_per_run: int = 7            # تعداد بازدید در هر اجرا
-    min_follow_per_run: int = 0      # فالو غیرفعال - فقط بازدید و لایک
-    max_follow_per_run: int = 0      # فالو غیرفعال
-    min_unfollow_per_run: int = 0    # آنفالو غیرفعال
-    max_unfollow_per_run: int = 0    # آنفالو غیرفعال
+    min_follow_per_run: int = 3      # حداقل فالو در هر اجرا
+    max_follow_per_run: int = 7      # حداکثر فالو در هر اجرا
+    min_unfollow_per_run: int = 2    # حداقل آنفالو در هر اجرا
+    max_unfollow_per_run: int = 5    # حداکثر آنفالو در هر اجرا
     
     # تاخیرهای انسانی (ثانیه) - افزایش برای رفتار طبیعی‌تر
     min_action_delay: float = 3.0

@@ -480,7 +480,8 @@ class XBot:
             f"⚠️ Errors: {self.stats['errors']}"
         )
         
-        report_line = f"[{timestamp}] {stats_text.replace('\n', ' | ')}\n"
+        stats_single_line = stats_text.replace('\n', ' | ')
+        report_line = f"[{timestamp}] {stats_single_line}\n"
         
         try:
             with open(self.config.report_file, "a", encoding="utf-8") as f:

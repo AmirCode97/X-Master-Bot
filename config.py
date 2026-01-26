@@ -136,6 +136,10 @@ class Config:
     test_mode: bool = False
     custom_proxy: str = ""           # پروکسی سفارشی
     
+    # تنظیمات تلگرام
+    telegram_token: str = ""
+    telegram_chat_id: str = ""
+    
     # فایل‌ها
     report_file: str = "report.txt"
     

@@ -449,23 +449,48 @@ class XBot:
     # گزارش و اجرا
     # ============================================
     
+    def _send_telegram_message(self, text: str) -> bool:
+        """ارسال پیام به تلگرام"""
+        token = os.getenv("TELEGRAM_BOT_TOKEN", self.config.telegram_token)
+        chat_id = os.getenv("TELEGRAM_CHAT_ID", self.config.telegram_chat_id)
+        
+        if not token or not chat_id:
+            return False
+            
+        try:
+            import requests
+            url = f"https://api.telegram.org/bot{token}/sendMessage"
+            payload = {"chat_id": chat_id, "text": text, "parse_mode": "HTML"}
+            requests.post(url, json=payload, timeout=10)
+            return True
+        except Exception as e:
+            logger.error(f"❌ خطا در ارسال پیام تلگرام: {e}")
+            return False
+
     def _save_report(self) -> None:
-        """ذخیره گزارش عملیات"""
+        """ذخیره گزارش عملیات و ارسال به تلگرام"""
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        report_line = (
-            f"[{timestamp}] "
-            f"Views: {self.stats['views']} | "
-            f"Likes: {self.stats['likes']} | "
-            f"Reposts: {self.stats['reposts']} | "
-            f"Follows: {self.stats['follows']} | "
-            f"Unfollows: {self.stats['unfollows']} | "
-            f"Errors: {self.stats['errors']}\n"
+        
+        stats_text = (
+            f"👀 Views: {self.stats['views']}\n"
+            f"❤️ Likes: {self.stats['likes']}\n"
+            f"🔁 Reposts: {self.stats['reposts']}\n"
+            f"➕ Follows: {self.stats['follows']}\n"
+            f"➖ Unfollows: {self.stats['unfollows']}\n"
+            f"⚠️ Errors: {self.stats['errors']}"
         )
+        
+        report_line = f"[{timestamp}] {stats_text.replace('\n', ' | ')}\n"
         
         try:
             with open(self.config.report_file, "a", encoding="utf-8") as f:
                 f.write(report_line)
             logger.info(f"📊 گزارش ذخیره شد: {self.config.report_file}")
+            
+            # ارسال به تلگرام
+            telegram_msg = f"<b>🏰 X-Master-Bot Report</b>\n\n📅 {timestamp}\n\n{stats_text}\n\n✅ <i>اجرا با موفقیت به پایان رسید.</i>"
+            self._send_telegram_message(telegram_msg)
+            
         except Exception as e:
             logger.error(f"❌ خطا در ذخیره گزارش: {e}")
     
